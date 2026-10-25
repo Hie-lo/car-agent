@@ -53,9 +53,11 @@ def test_divar_sdk_access():
 
     print("[TEST] Sending search request to Divar Finder service (category: 'light', city: 'tehran')...")
     try:
+        # In Kenar SDK (Pydantic v2), all fields (city, category, districts, query) must be explicitly passed
         req = SearchPostRequest(
             city="tehran",
             category="light",
+            districts=[],
             query={
                 "brand_model": {"value": ["Pride 111 EX", "پژو 206"]},
             },
