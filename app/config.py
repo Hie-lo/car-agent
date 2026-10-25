@@ -1,5 +1,26 @@
 import os
+from pathlib import Path
 from pydantic import BaseModel, Field
+
+
+def load_dotenv(env_path: str | Path = ".env") -> None:
+    """Loads key-value pairs from a .env file into os.environ without overriding existing vars."""
+    path = Path(env_path)
+    if not path.is_file():
+        return
+    with open(path, "r", encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line or line.startswith("#") or "=" not in line:
+                continue
+            key, val = line.split("=", 1)
+            key = key.strip()
+            val = val.strip().strip("'\"")
+            if key and key not in os.environ:
+                os.environ[key] = val
+
+
+load_dotenv()
 
 
 class Settings(BaseModel):

@@ -6,7 +6,18 @@ Usage:
     python scripts/test_divar_api.py
 """
 import os
+from pathlib import Path
 import sys
+
+# Ensure project root is on sys.path
+PROJECT_ROOT = Path(__file__).parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
+
+from app.config import load_dotenv
+
+# Automatically load .env from root or current working directory
+load_dotenv(PROJECT_ROOT / ".env")
+load_dotenv(".env")
 
 try:
     from kenar import Client, ClientConfig, SearchPostRequest
