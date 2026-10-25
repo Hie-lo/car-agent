@@ -1,0 +1,45 @@
+{
+  "posts": [
+    {
+      "token": "gZ123456",
+      "title": "پژو 207 دنده‌ای مدل 1401",
+      "category": "light-cars",
+      "city": "tehran",
+      "district": "saadat-abad",
+      "image_url": "https://s100.divarcdn.com/post_images/sample1.jpg",
+      "price": {
+        "value": 680000000,
+        "type": "fixed"
+      },
+      "last_post_date": 1729881000,
+      "fields": {
+        "brand_model": "پژو 207",
+        "year": 1401,
+        "mileage": 35000,
+        "gearbox": "manual",
+        "color": "سفید",
+        "body_condition": "بدون رنگ"
+      }
+    },
+    {
+      "token": "gZ789012",
+      "title": "تارا اتوماتیک V4 صفر",
+      "category": "light-cars",
+      "city": "tehran",
+      "district": "punak",
+      "image_url": "https://s100.divarcdn.com/post_images/sample2.jpg",
+      "price": {
+        "value": null,
+        "type": "negotiable"
+      },
+      "last_post_date": 1729885000,
+      "fields": {
+        "brand_model": "تارا",
+        "year": 1403,
+        "mileage": 0,
+        "gearbox": "automatic",
+        "color": "مشکی"
+      }
+    }
+  ]
+}
