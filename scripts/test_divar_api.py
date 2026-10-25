@@ -1,67 +1,64 @@
 """
-Opt-in manual script to verify real Divar Kenar v2 API access and schema.
+Script to test real Divar Kenar API access and schema using the official SDK.
 Usage:
-    $env:DIVAR_API_KEY="your_real_key"
+    $env:KENAR_API_KEY="your_api_key"
+    $env:KENAR_APP_SLUG="your_app_slug"
     python scripts/test_divar_api.py
 """
-import json
 import os
 import sys
-import urllib.error
-import urllib.request
+
+try:
+    from kenar import Client, ClientConfig, SearchPostRequest
+    KENAR_AVAILABLE = True
+except ImportError:
+    KENAR_AVAILABLE = False
 
 
-def test_divar_live_access():
-    api_key = os.getenv("DIVAR_API_KEY")
+def test_divar_sdk_access():
+    api_key = os.getenv("KENAR_API_KEY") or os.getenv("DIVAR_API_KEY")
+    app_slug = os.getenv("KENAR_APP_SLUG") or os.getenv("DIVAR_APP_SLUG")
+
     if not api_key:
-        print("[INFO] DIVAR_API_KEY environment variable is not set.")
-        print("To run live contract tests, set DIVAR_API_KEY and run again.")
+        print("[INFO] KENAR_API_KEY is not set.")
+        print("To test real live API access, configure in .env or set in terminal:")
+        print("    $env:KENAR_API_KEY = \"your_real_key\"")
+        print("    $env:KENAR_APP_SLUG = \"your_app_slug\"")
         return 0
 
-    base_url = os.getenv("DIVAR_BASE_URL", "https://api.divar.ir")
-    endpoint = f"{base_url}/open-platform/v2/posts/search"
-    
-    headers = {
-        "x-api-key": api_key,
-        "User-Agent": "VehicleRadarAgent/0.1 (Milestone 0 contract test)",
-        "Content-Type": "application/json",
-    }
-    
-    # Bounded query (limit 2 results, car category)
-    payload = {
-        "query": "207",
-        "category_slug": "light-cars",
-        "limit": 2,
-    }
-
-    req = urllib.request.Request(
-        endpoint,
-        data=json.dumps(payload).encode("utf-8"),
-        headers=headers,
-        method="POST",
-    )
-
-    print(f"[TEST] Sending bounded request to {endpoint}...")
-    try:
-        with urllib.request.urlopen(req, timeout=10) as resp:
-            status = resp.status
-            rate_limit_remaining = resp.headers.get("x-ratelimit-remaining", "unknown")
-            body = resp.read().decode("utf-8")
-            data = json.loads(body)
-            print(f"[SUCCESS] Status: {status}, Rate-Limit-Remaining: {rate_limit_remaining}")
-            print(f"[RESULT] Received {len(data.get('posts', []))} posts.")
-            return 0
-    except urllib.error.HTTPError as e:
-        print(f"[HTTP ERROR] Code: {e.code}, Reason: {e.reason}")
-        if e.code == 403:
-            print("[NOTE] 403 Forbidden: Check API key or required SEARCH_POST scope.")
-        elif e.code == 429:
-            print("[NOTE] 429 Rate Limited: Honor Retry-After and throttle collector.")
+    if not KENAR_AVAILABLE:
+        print("[ERROR] The official 'Kenar' SDK is not installed.")
+        print("Run: pip install Kenar")
         return 1
+
+    print(f"[TEST] Initializing Kenar Client with App Slug: '{app_slug or 'vehicle-radar'}'...")
+    conf = ClientConfig(
+        app_slug=app_slug or "vehicle-radar",
+        api_key=api_key,
+        oauth_secret=os.getenv("KENAR_OAUTH_SECRET", "dummy_secret"),
+        oauth_redirect_url=os.getenv("KENAR_OAUTH_REDIRECT_URL", "https://localhost/oauth"),
+    )
+    client = Client(conf)
+
+    print("[TEST] Sending search request to Divar Finder service (category: 'light', city: 'tehran')...")
+    try:
+        req = SearchPostRequest(
+            city="tehran",
+            category="light",
+            query={
+                "brand_model": {"value": ["Pride 111 EX", "پژو 206"]},
+            },
+        )
+        response = client.finder.search_post(req)
+        posts = response.posts or []
+        print(f"[SUCCESS] Search completed! Received {len(posts)} posts.")
+        for i, post in enumerate(posts[:2], 1):
+            print(f"  Post {i}: token={post.get('token')} title={post.get('title')}")
+        return 0
     except Exception as e:
-        print(f"[ERROR] Connection failed: {e}")
+        print(f"[HTTP/SDK ERROR] {e}")
         return 1
 
 
 if __name__ == "__main__":
-    sys.exit(test_divar_live_access())
+    sys.exit(test_divar_sdk_access())

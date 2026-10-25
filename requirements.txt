@@ -3,6 +3,9 @@ pytest>=8.0.0
 pytest-asyncio>=0.24.0
 aiosqlite>=0.20.0
 
+# Divar Kenar Official SDK
+Kenar>=0.7.1
+
 # Core runtime dependencies (AGENTS.md section 4)
 python-telegram-bot>=21.0
 fastapi>=0.110.0

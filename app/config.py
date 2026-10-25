@@ -7,8 +7,11 @@ class Settings(BaseModel):
     app_env: str = Field(default_factory=lambda: os.getenv("APP_ENV", "development"))
     debug: bool = Field(default_factory=lambda: os.getenv("DEBUG", "false").lower() == "true")
 
-    # Divar API (Kenar v2)
-    divar_api_key: str = Field(default_factory=lambda: os.getenv("DIVAR_API_KEY", ""))
+    # Divar API (Kenar SDK & v2)
+    kenar_app_slug: str = Field(default_factory=lambda: os.getenv("KENAR_APP_SLUG", os.getenv("DIVAR_APP_SLUG", "")))
+    kenar_api_key: str = Field(default_factory=lambda: os.getenv("KENAR_API_KEY", os.getenv("DIVAR_API_KEY", "")))
+    kenar_oauth_secret: str = Field(default_factory=lambda: os.getenv("KENAR_OAUTH_SECRET", ""))
+    kenar_oauth_redirect_url: str = Field(default_factory=lambda: os.getenv("KENAR_OAUTH_REDIRECT_URL", ""))
     divar_base_url: str = Field(default_factory=lambda: os.getenv("DIVAR_BASE_URL", "https://api.divar.ir"))
 
     # Telegram Bot
