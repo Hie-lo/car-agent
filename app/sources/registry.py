@@ -12,8 +12,10 @@ class SourceRegistryEntry:
 
 
 def can_run_source(entry: SourceRegistryEntry) -> bool:
-    """Only APPROVED sources are runnable. Any other status must fail closed."""
-    raise NotImplementedError
+    """Only APPROVED sources without an open circuit breaker are runnable."""
+    if entry.is_circuit_open:
+        return False
+    return entry.status == SourceStatus.APPROVED
 
 
 def handle_source_http_error(
@@ -23,7 +25,15 @@ def handle_source_http_error(
     """
     Handles HTTP response errors:
     - 401/403: Marks source paused / blocked due to credential/permission failure
-    - 429: Increments rate-limit backoff or temporarily pauses
+    - 429: Increments rate-limit backoff counter
     - 5xx: Tracks consecutive errors and opens circuit breaker if threshold reached
     """
-    raise NotImplementedError
+    if status_code in (401, 403):
+        entry.status = SourceStatus.PAUSED
+        entry.consecutive_errors += 1
+    elif status_code == 429:
+        entry.consecutive_errors += 1
+    elif status_code >= 500:
+        entry.consecutive_errors += 1
+        if entry.consecutive_errors >= 3:
+            entry.is_circuit_open = True
