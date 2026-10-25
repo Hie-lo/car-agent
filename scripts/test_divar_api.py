@@ -64,12 +64,22 @@ def test_divar_sdk_access():
         )
         response = client.finder.search_post(req)
         posts = response.posts or []
-        print(f"[SUCCESS] Search completed! Received {len(posts)} posts.")
+        print(f"[SUCCESS] Search completed via Kenar SDK! Received {len(posts)} posts.")
         for i, post in enumerate(posts[:2], 1):
             print(f"  Post {i}: token={post.get('token')} title={post.get('title')}")
         return 0
     except Exception as e:
-        print(f"[HTTP/SDK ERROR] {e}")
+        err_msg = str(e)
+        print(f"[HTTP/SDK ERROR] {err_msg}")
+        if "403" in err_msg and "RBAC: access denied" in err_msg:
+            print("\n" + "=" * 65)
+            print("🔍 [DIAGNOSIS] علت ارور: دسترسی SEARCH_POST روی این کلید فعال نیست.")
+            print("برای رفع این مشکل:")
+            print("1. به پنل توسعه‌دهندگان کنار دیوار بروید: https://divar.ir/kenar")
+            print(f"2. وارد تنظیمات برنامه '{app_slug}' شوید.")
+            print("3. در بخش 'دسترسی‌ها / Scopes'، تیک دسترسی 'SEARCH_POST' و 'GET_POST' را فعال کنید.")
+            print("4. در صورت نیاز به تایید پشتیبانی کنار برای جستجو، تیکت درخواست فعال‌سازی دسترسی سرچ ارسال کنید.")
+            print("=" * 65 + "\n")
         return 1
 
 
