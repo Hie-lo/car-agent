@@ -8,6 +8,7 @@ from app.db.session import Base
 
 @pytest.fixture
 async def async_db():
+    pytest.importorskip("aiosqlite", reason="aiosqlite is required for in-memory async SQLite tests. Run: pip install -r requirements.txt")
     engine = create_async_engine("sqlite+aiosqlite:///:memory:", echo=False)
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
