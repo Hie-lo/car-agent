@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "vehicle-radar"
+version = "0.1.0"
+description = "Vehicle Radar Agent for Iranian car listings"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = []
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+testpaths = ["tests"]
+pythonpath = ["."]
+asyncio_mode = "auto"
